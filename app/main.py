@@ -9,7 +9,7 @@ app = FastAPI(title=settings.app_name)
 
 
 
-@ app.get("/health")
+@app.get("/health")
 def health_check():
     return {"status": "ok"}
 
