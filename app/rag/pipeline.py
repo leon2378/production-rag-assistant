@@ -11,7 +11,7 @@ from app.core.config import settings
 
 langfuse = Langfuse(
     public_key=settings.langfuse_public_key,
-    private_key=settings.langfuse_private_key,
+    secret_key=settings.langfuse_private_key,
     host=settings.langfuse_host,
 )
 
