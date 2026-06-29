@@ -6,6 +6,15 @@ from app.rag.embeddings import EmbeddingModel
 from app.rag.vector_store import VectorStore
 from app.rag.llm import generate_answer
 
+from langfuse import Langfuse
+from app.core.config import settings
+
+langfuse = Langfuse(
+    public_key=settings.langfuse_public_key,
+    secret_key=settings.langfuse_secret_key,
+    host=settings.langfuse_host,
+)
+
 
 embedding_model = EmbeddingModel()
 vector_store = VectorStore(vector_size=384)
@@ -65,6 +74,19 @@ async def answer_question(question: str, top_k: int = 5) -> dict:
         }
 
     answer = await generate_answer(question, context_chunks)
+
+
+    trace = langfuse.trace(
+        name="rag-question-answering",
+        input={"question": question},
+    )
+
+    trace.update(
+        output={
+            "answer": answer,
+            "sources": sources,
+        }
+    )
 
     return {
         "question": question,
