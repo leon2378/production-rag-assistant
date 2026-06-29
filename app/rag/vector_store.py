@@ -58,11 +58,13 @@ class VectorStore:
             points=points,
         )
 
-    def search(self, query_embedding: list[float], top_k: int = 5):
-        results = self.client.search(
+    def search(self, query_vector, top_k: int = 5):
+        response = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_embedding,
+            query=query_vector,
             limit=top_k,
+            with_payload=True,
+            with_vectors=False,
         )
 
-        return results
+        return response.points

@@ -41,17 +41,28 @@ async def answer_question(question: str, top_k: int = 5) -> dict:
     sources = []
 
     for result in search_results:
-        payload = result.payload
-        context_chunks.append(payload["text"])
+        payload = result.payload or {}
+
+        chunk_text = payload.get("text", "")
+
+        if chunk_text:
+            context_chunks.append(chunk_text)
 
         sources.append(
             {
-                "source_file": payload["source_file"],
-                "chunk_index": payload["chunk_index"],
-                "score": result.score,
-                "preview": payload["text"][:250],
+                "source_file": payload.get("source_file", "unknown"),
+                "chunk_index": payload.get("chunk_index", 0),
+                "score": float(result.score),
+                "preview": chunk_text[:250],
             }
         )
+
+    if not context_chunks:
+        return{
+            "question": question,
+            "answer": "I could not find relevant information in the uploaded documents.",
+            "sources": sources,
+        }
 
     answer = await generate_answer(question, context_chunks)
 
